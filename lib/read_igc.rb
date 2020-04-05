@@ -2,7 +2,7 @@
 # http://vali.fai-civl.org/documents/IGC-Spec_v1.00.pdf
 
 # Usage:
-# (points, errors) = read_points('track.igc')
+# (header, points, errors) = read_points('track.igc')
 
 IGC_LINES = [
 	"A - FVU identification number",
@@ -22,6 +22,7 @@ IGC_LINES = [
 def read_points filename
 	points = []
 	errors = []
+	header = [File.basename(filename)]
 	begin
 		f = File.open(filename)
 		f.each do |line|
@@ -36,8 +37,19 @@ def read_points filename
 			elsif line =~ /^H/
 				if line =~ /^H.DTE/
 					# Date
+					# H D D M M Y Y A A A CR LF
+					# HFDTE301219
+					# HFDTEDATE:150320,01
+					if line.index(':')
+						header << line[line.index(':')+1,6]
+					else
+						header << line[5,6]
+					end
 				elsif line =~ /^H.PLT/
 					# Pilot
+					# HFPLTPILOTINCHARGE:Marcin Duszynski
+					# HFPLTPILOT:
+					header << (line[(line.index(':')+1)..line.length]).strip
 				elsif line =~ /^H.GTY/
 					# Glider Type
 				elsif line =~ /^H.GID/
@@ -105,7 +117,7 @@ def read_points filename
 	ensure
   	f.close if f
 	end
-	[points, errors]
+	[header, points, errors]
 end
 
 def encode_dms_to_dd latitude_str, longitude_str
@@ -127,6 +139,6 @@ def encode_dms_to_dd latitude_str, longitude_str
 	
 	[latitude_dd, longitude_dd]
 rescue => e
-	puts "Error in encode_dms_to_dd(): #{e.inspect}"
+	log_error "Error in encode_dms_to_dd(): #{e.inspect}"
 	[0,0]
 end
