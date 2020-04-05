@@ -1,0 +1,81 @@
+# Notes:
+# -------- UNITS:
+# Time - UTC
+# Distance - Meters
+# Speed - Kilometers per hour
+# Date - DDMMYY (day, month, year) UTC
+# Direction - True degree
+# Altitude - Meters
+# --------------
+# "A - FVU identification number"
+# "H - File header"
+# "I - Fix extension"
+# "J - Extension"
+# "C - Task"
+# "L - Log Book"
+# "D - Differential GPS"
+# "E - Event"
+# "K - Extension data"
+# "F - Constellation"
+# "G - Security"
+
+#puts distance(46.3625, 15.114444,46.055556, 14.508333)
+
+# --------- GPS coordinates format:
+Here are examples of formats that work:
+* Degrees, minutes, and seconds (DMS): 41°24'12.2"N 2°10'26.5"E.
+* Degrees and decimal minutes (DMM): 41 24.2028, 2 10.4418.
+* Decimal degrees (DD): 41.40338, 2.17403.
+
+LZ: Waypoints are in DD, poins in .igc are in DMS
+
+# --------- waypoints XML
+wp = XPath.first(xmldoc, "//Placemark")
+# <name>
+wp.elements[1]
+# <styleUrl>
+wp.elements[2]
+# <coordinates>
+wp.elements[3].elements[1].text.strip
+
+#-------------- irb
+require "./read_gps.rb"
+load "./read_gps.rb"
+require "./read_waypoints.rb"
+load "./read_waypoints.rb"
+
+# ---------- GIT
+git clone git@github.com:LeoXC/paragliding_hits.git
+
+#--------------
+require 'google/apis/drive_v2'
+
+drive = Google::Apis::DriveV2:DriveService.new
+drive.authorization = ...
+drive.insert_file({title: 'My Favorite Movie'}, upload_source: 'mymovie.m4v',
+                  content_type: 'video/mp4')
+--------
+https://github.com/googleapis/google-api-ruby-client/blob/master/docs/media-upload.md
+
+# ------ Testing in main.rb:
+# waypoints.each do |wp|
+# 	puts wp
+# end
+
+# puts "Test:"
+# fst = points.first
+# lst = points.last
+# p fst
+# p lst
+# puts distance(fst[:latitude], fst[:longitude], lst[:latitude], lst[:longitude])
+# 1126.996598438834
+#
+# puts distance(46.3625, 15.114444,46.055556, 14.508333)
+
+# puts "Test 2:"
+# wp = waypoints[0]
+# pt = points[0]
+# p wp
+# p pt
+# ds = distance(wp[:latitude], wp[:longitude], pt[:latitude], pt[:longitude])
+# p ds
