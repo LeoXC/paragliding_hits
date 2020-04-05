@@ -13,6 +13,7 @@ The results are saved in .cvs file, where each line have:
   - Filename
   - Date
   - Pilot name
+  - Count of hit waypoints
   - Hit waypoints
 
 Define input:
@@ -28,7 +29,11 @@ Other:
 	-h print help
 	-s silent mode on, dont print logs and errors here, but into log files:
 		./log.txt
-		./errors.txt (if occure)'.freeze
+		./errors.txt (if occure)
+Sample ussage:
+ ruby hits.rb -f "track_file.igc"
+ ruby hits.rb -w ../waypoints.kml -d ../tracks -r 2000
+ ruby hits.rb -w ../waypoints.kml -f my_trac_file.igc -o my_results.csv -s'.freeze
 
 begin
   params = default_params()
