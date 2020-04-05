@@ -39,7 +39,7 @@ def read_input_params(argv, params)
 	until argv.empty?
 		arg = argv[0]
 		if arg == '-f'
-			exit_script("Error: '#{igc_file}' is not .igc file") unless argv[1] =~ %r(.igc$)i
+			exit_script("Error: '#{argv[1]}' is not .igc file") unless argv[1] =~ %r(.igc$)i
 			params[:igc_file] = argv[1]
    	elsif arg == '-d'
    		params[:igc_dir] = argv[1]
@@ -69,9 +69,11 @@ end
 def igc_files_to_read(igc_file, igc_dir)
 	igc_files = []
 	if igc_file
+		exit_script("Error: Unexisting .igc file: #{igc_file}") unless File.file?(igc_file)
 		igc_files << igc_file
 	elsif igc_dir
 		igc_dir_path = Dir.pwd + '/' + igc_dir
+		exit_script("Error: Unexisting .igc directory: #{igc_dir_path}") unless File.exist?(igc_dir_path)
 		log_line "Collecting .igc files from dir: #{igc_dir_path}"
 		igc_files = Dir[igc_dir_path + '/*.igc']
 		log_line "Nr of .igc files: #{igc_files.count}"
