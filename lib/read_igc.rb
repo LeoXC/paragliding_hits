@@ -113,7 +113,7 @@ def read_points filename
 			end
 		end
 	rescue Errno::ENOENT
-		errors << "File not found: #{filename}"
+		errors << "Error: File not found: #{filename}"
 	ensure
   	f.close if f
 	end

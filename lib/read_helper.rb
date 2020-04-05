@@ -4,10 +4,8 @@ def read_waypoints_with_info(wp_file)
 	
 	(waypoints, errors) = read_waypoints(wp_file)
 	
-	unless errors.empty?
-		log_error "-> Errors when reading waypoints file:"
-		errors.each{|e| log_error(e)}
-	end
+	errors.each{|e| log_error(e)} unless errors.empty?
+	exit_script("Error: No waypoints to measure distance from.") if waypoints.count==0
 	log_line "Nr of waypoints: #{waypoints.count}"
 
 	waypoints
@@ -17,11 +15,8 @@ def read_points_with_info(igc_file)
 	log_line "----- Reading .igc file: #{igc_file}"
 	
 	(header, points, errors) = read_points(igc_file)
-	
-	unless errors.empty?
-		log_error "-> Errors when reading .igc file:"
-		errors.each{|e| log_error(e)}
-	end
+
+	errors.each{|e| log_error(e)} unless errors.empty?
 	log_line "Nr of points: #{points.count}"
 
 	[header, points]

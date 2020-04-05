@@ -18,10 +18,15 @@ def log_error line
 	end
 end
 
-def exit_script error=nil
+def exit_script error=nil, help=false
 	puts error if error
-	puts HELP
+	puts HELP if help
 	exit
+end
+
+def end_program
+	# Is silence_mode: Save logs and errors to file
+	# TBD
 end
 
 def default_params()
@@ -56,10 +61,10 @@ def read_input_params(argv, params)
    		argv.shift
    		next
    	elsif arg == '-h'
-   		exit_script
+   		exit_script(error=nil, help=true)
    		break
    	else 
-   		exit_script("Error: Unknown argument: #{arg}")
+   		exit_script("Error: Unknown argument: #{arg}", help=true)
 		end
    	argv.shift(2)
 	end
@@ -83,6 +88,7 @@ end
 
 def save_in_file(filename, results)
 	begin
+		log_line "Saving results in: '#{filename}'"
 		if File.file?(filename)
 			log_line "File '#{filename}' already exists, it will be replaced."
 		end

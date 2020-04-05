@@ -22,7 +22,7 @@ def read_waypoints filename
 			]
 		end
 	rescue Errno::ENOENT
-		errors << "File not found: #{filename}"
+		errors << "Error: File not found: #{filename}"
 	ensure
   	xmlfile.close if xmlfile
 	end

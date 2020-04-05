@@ -47,14 +47,15 @@ begin
 	end
 
 	# Save results
-	if params[:results_append_file]
-		append_to_file(params[:results_append_file], results)
-	else
-		save_in_file(params[:results_file], results)
+	unless results.empty?
+		if params[:results_append_file]
+			append_to_file(params[:results_append_file], results)
+		else
+			save_in_file(params[:results_file], results)
+		end
 	end
 
+	end_program
 	# TODO: end_program => save logs and errors to file
-# rescue => e
-# 	log_line "Error: #{e.message}"
 end
 
