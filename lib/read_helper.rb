@@ -23,8 +23,6 @@ def read_points_with_info(igc_file)
 end
 
 def calculate_results_with_info(points, waypoints, max_distance)
-	log_line "Calulating hits for max distance: #{max_distance}"
-	
 	result = calculate_results(points, waypoints, max_distance)
 
 	# TODO? Choice closest point, not the first hit

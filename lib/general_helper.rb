@@ -59,6 +59,7 @@ def read_input_params(argv, params)
    		params[:wp_file] = value
    	elsif arg == '-r'
    		params[:max_distance] = (value).to_f
+   		log_line "Chosen max distance: #{params[:max_distance]}"
    	elsif arg == '-p'
    		params[:pilot] = value
 		elsif arg == '-o'
@@ -104,8 +105,8 @@ def save_in_file(filename, results, append=false, squash=true)
 
 		if squash
 			log_line "New results count: #{results.count}"
-			all_results = sqauash_results(results)
-			log_line "After squash results count: #{all_results.count}"
+			results = sqauash_results(results)
+			log_line "After squash results count: #{results.count}"
 		end
 
 		f = File.open(filename, "w")
