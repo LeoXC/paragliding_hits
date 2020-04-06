@@ -35,12 +35,16 @@ def calculate_results_with_info(points, waypoints, max_distance)
 	end
 end
 
-def decorate_result(result, header)
+def decorate_result(result, header, pilot=nil)
 	# Desired result record:
 	# - Filename
 	# - Date
-  # - Pilot name
-  # - Count of hit waypoints
-  # - Hit waypoints (names)
+	# - Pilot name
+	# - Count of hit waypoints
+	# - Hit waypoints (names)
+	if pilot
+		header[2] = pilot
+		log_line 'Pilot name will be: ' + pilot
+	end
 	header + [result.count] + result.map{|hit_wp| hit_wp[:name]}
 end

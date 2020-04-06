@@ -22,6 +22,7 @@ Define input:
 	-w filename (waypoints XML .kml), by default ./waypoints.kml
 	-r max_distance allowed for track point from waypoint to be hit,
 	   by default = 120m
+	-p pilot_name, to be pritned in results instead of the one in .igc file(s)
 Define output:
 	-o filename, by default ./results.csv
 	-a filename, append to already existing results file, by default ./results.csv
@@ -47,7 +48,7 @@ begin
 	igc_files.each do |igc_file|
 		(header, points) = read_points_with_info(igc_file)
 		result = calculate_results_with_info(points, waypoints, params[:max_distance])
-		result = decorate_result(result, header)
+		result = decorate_result(result, header, params[:pilot])
 		results << result
 	end
 

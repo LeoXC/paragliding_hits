@@ -36,26 +36,30 @@ def default_params()
 	  wp_file: 'waypoints.kml',
 	  max_distance: 120,
 	  results_file: 'results.csv',
-	  results_append_file: nil
+	  results_append_file: nil,
+	  pilot: nil
 	]
 end
 
 def read_input_params(argv, params)
 	until argv.empty?
 		arg = argv[0]
+		value = (argv[1]).strip unless ['-s','-h'].include?(arg)
 		if arg == '-f'
-			exit_script("Error: '#{argv[1]}' is not .igc file") unless argv[1] =~ %r(.igc$)i
-			params[:igc_file] = argv[1]
+			exit_script("Error: '#{value}' is not .igc file") unless value =~ %r(.igc$)i
+			params[:igc_file] = value
    	elsif arg == '-d'
-   		params[:igc_dir] = argv[1]
+   		params[:igc_dir] = value
    	elsif arg == '-w'
-   		params[:wp_file] = argv[1]
+   		params[:wp_file] = value
    	elsif arg == '-r'
-   		params[:max_distance] = (argv[1]).to_f
+   		params[:max_distance] = (value).to_f
+   	elsif arg == '-p'
+   		params[:pilot] = value
 		elsif arg == '-o'
-   		params[:results_file] = argv[1]
+   		params[:results_file] = value
    	elsif arg == '-a'
-   		params[:results_append_file] = argv[1]
+   		params[:results_append_file] = value
    	elsif arg == '-s'
    		@silent_mode = true
    		argv.shift
