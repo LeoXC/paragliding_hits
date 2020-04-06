@@ -79,3 +79,330 @@ https://github.com/googleapis/google-api-ruby-client/blob/master/docs/media-uplo
 # p pt
 # ds = distance(wp[:latitude], wp[:longitude], pt[:latitude], pt[:longitude])
 # p ds
+
+
+# -------- farther dev (merging,squashing)
+def merge_results previous_results, results
+	all_results = []
+	new_results = []
+
+	previous_results.each do |previous_result|
+		puts "previous_result: #{previous_result}"
+		previous_pilot = previous_result[2]
+		if previous_pilot.strip.empty?
+			log_error "Warning: Previous results have empty pilot name. (row header: \"#{previous_result[0..3].join(',')}\")"
+			all_results << previous_result
+			next
+		end
+
+		result = results.select do|result|
+			current_pilot = result[2]
+			result if current_pilot.strip.downcase == previous_pilot.strip.downcase
+		end
+
+		if result.count > 1
+			log_error "Error: There is #{result.count} rows in previous results file for pilot: #{previous_pilot}. Skipping result."
+			p result
+		elsif result.count == 1
+			result.flatten!
+			puts "current: #{result}"
+
+			all_hits = (saved_result[4..] + result[4..]).uniq
+
+			all_results << [
+				previous_result[0] + ';' + result[0],	# list files
+				previous_result[1] + ';' + result[1],	# list dates
+				previous_result[2],
+				all_hits.count,
+				all_hits						# unique hits
+			].flatten
+
+			# remove merged one from current results
+			results.delete(result){ "not found :/ impossible!" }
+			put "merged result: #{all_results.last}"
+		else	# empty, not found in previous
+			puts "old,unchanged result: #{previous_result}"
+			all_results << previous_result
+		end
+	end
+	puts "left from new to add: #{results.count}"
+	p results
+
+	all_results.concat(results)
+	puts "all: #{all_results.count}"
+	p all_results
+	all_results
+rescue => e
+	log_error "Error: #{e.message}"
+end
+
+---------------- squash v1
+
+def sqauash_results results
+	p "----------------- SQUASHING"
+	all_results = []
+
+	results.each do |result|
+		puts "-----------> result: #{result}"
+		file_s = result[0].strip.downcase
+		pilot = result[2].strip.downcase
+
+		if pilot.strip.empty?
+			log_error "Warning: Empty pilot name. (row header: \"#{result[0..3].join(',')}\")"
+
+			saved_result = all_results.select do |saved|
+				saved_file_s = saved[0].strip.downcase
+				saved if ((file_s.include?(saved_file_s)) || (saved_file_s.include?(file_s)))
+			end.flatten
+
+			if saved_result.empty?
+				# if not found by filename => add it
+				all_results << result
+			else
+				saved_file_s = saved_result[0].strip.downcase
+				if (file_s.include?(saved_file_s)) && file_s > saved_file_s
+					p "**** Saved is similar but smaller, we need to replace:"
+					p saved_result
+					# if result contains saved_result => remove saved_result, add result
+					all_results.delete(saved_result)
+					all_results << result
+				else
+					p "**** Saved is similar but bigger, skip!"
+				end
+			end
+			# if saved_result contains result => then skip it
+			next
+		end
+
+		saved_result = all_results.select do |saved|
+			saved_pilot = saved[2].strip.downcase
+			saved if pilot == saved_pilot
+		end.flatten
+
+		if saved_result.empty?
+			puts "We will add new: #{result}"
+			all_results << result
+		else
+			saved_file_s = saved_result[0].strip.downcase
+			if ((file_s.include?(saved_file_s)) || (saved_file_s.include?(file_s)))
+				p "**** Saved is similar. Check if we need to swap"
+				if (file_s.include?(saved_file_s)) && file_s > saved_file_s
+					p "**** Saved is similar but smaller, we need to replace:"
+					p saved_result
+					# if result contains saved_result => remove saved_result, add result
+					all_results.delete(saved_result)
+					all_results << result
+				end
+				next
+			end
+
+			# Same pilot, different (new) track
+			puts "We will merge to: #{saved_result}"
+			all_results.delete(saved_result)
+
+			all_hits = (saved_result[4..] + result[4..]).uniq
+
+			all_results << [
+				saved_result[0] + ';' + result[0],	# list files
+				saved_result[1] + ';' + result[1],	# list dates
+				saved_result[2],										# pilot name
+				all_hits.count,											# hits count
+				all_hits														# unique hits
+			].flatten
+		end
+	end
+
+	puts "all count: #{all_results.count}"
+	p all_results
+	p "----------------- SQUASHING END"
+	all_results
+rescue => e
+	log_error "Error: #{e.message}"
+end
+
+--------------- squash v2
+def sqauash_results results
+	p "----------------- SQUASHING"
+	all_results = []
+
+	results.each do |result|
+		puts "-----------> result: #{result}"
+		file_s = result[0].strip.downcase
+		pilot = result[2].strip.downcase
+
+		if pilot.empty?
+			log_error "Warning: Empty pilot name. (row header: \"#{result[0..3].join(',')}\")"
+			(action, similar_result) = check_if_any_better_by_file(all_results, result)
+			if action == 'swap'
+				all_results.delete(similar_result)
+				all_results << result
+			elsif action == 'add'
+				all_results << result
+			end
+			next
+		end
+
+		p "Pilot is fine, lets see"
+		saved_result = all_results.select do |saved|
+			saved_pilot = saved[2].strip.downcase
+			saved if pilot == saved_pilot
+		end.flatten
+
+		if saved_result.empty?
+			p "no row with such pilot yet, adding"
+			all_results << result
+		else
+			puts "check the file before ..."
+			(action, similar_result) = check_if_any_better_by_file([saved_result], result)
+			if action == 'swap'
+				all_results.delete(similar_result)
+				all_results << result
+				next
+			elsif action == 'add'	# merge
+				# Same pilot, different (new) track
+				puts "We will merge to: #{saved_result}"
+				all_results.delete(saved_result)
+
+				all_hits = (saved_result[4..] + result[4..]).uniq
+
+				all_results << [
+					saved_result[0] + ';' + result[0],	# list files
+					saved_result[1] + ';' + result[1],	# list dates
+					saved_result[2],										# pilot name
+					all_hits.count,											# hits count
+					all_hits														# unique hits
+				].flatten
+			end
+		end
+	end
+
+	puts "all count: #{all_results.count}"
+	p all_results
+	p "----------------- SQUASHING END"
+	all_results
+rescue => e
+	log_error "Error: #{e.message}"
+end
+
+# private function, for swaping
+def check_if_any_better_by_file(base_results, result)
+	file_s = result[0].strip.downcase
+
+p base_results
+p result
+
+	base_results.each do |saved|
+		saved_file_s = saved[0].strip.downcase
+		if file_s == saved_file_s						# if equal => skip
+			p "skip"
+			return ['skip', saved]
+		elsif saved_file_s.include?(file_s)	# if saved is better => skip
+			p "skip"
+			return ['skip', saved]
+		elsif file_s.include?(saved_file_s)	# if saved is worse => swap
+			p file_s
+			p saved_file_s
+			p "swap"
+			return ['swap', saved]
+		end
+	end
+	
+	p "add"
+	return ['add', result]							# if not found (by file) => add
+end
+
+------------ squash v3
+
+def sqauash_results results
+	p "----------------- SQUASHING"
+	all_results = []
+
+	results.each do |result|
+		puts "-----------> result: #{result}"
+		file_s = result[0].strip.downcase
+		pilot = result[2].strip.downcase
+
+		if pilot.empty?
+			log_error "Warning: Empty pilot name. (row header: \"#{result[0..3].join(',')}\")"
+			(action, poor_result) = check_if_any_better_by_file(all_results, result)
+			if action == 'swap'
+				all_results.delete(poor_result)
+				all_results << result
+			elsif action == 'add'
+				all_results << result
+			end
+			next
+		end
+
+		(action, saved_result) = check_if_any_better_by_pilot(all_results, result)
+		if action == 'add'
+			p "no row with such pilot yet, adding"
+			all_results << result
+			next
+		elsif action == 'swap'
+			all_results.delete(saved_result)
+			all_results << result
+			next
+		elsif action == 'merge'
+			# Same pilot, different (new) track
+			puts "We will merge to: #{saved_result}"
+			all_results.delete(saved_result)
+
+			all_hits = (saved_result[4..] + result[4..]).uniq
+
+			all_results << [
+				saved_result[0] + ';' + result[0],	# list files
+				saved_result[1] + ';' + result[1],	# list dates
+				saved_result[2],										# pilot name
+				all_hits.count,											# hits count
+				all_hits														# unique hits
+			].flatten
+		end
+	end
+
+	all_results
+rescue => e
+	log_error "Error: #{e.message}"
+end
+
+# private function, for swaping
+def check_if_any_better_by_file(base_results, result)
+	# return: [action, poor_result]
+	file_s = result[0].strip.downcase
+
+	base_results.each do |saved|
+		saved_file_s = saved[0].strip.downcase
+		if file_s == saved_file_s						# if equal => skip
+			return ['skip', nil]
+		elsif saved_file_s.include?(file_s)	# if saved is better => skip
+			return ['skip', result]
+		elsif file_s.include?(saved_file_s)	# if saved is worse => swap
+			return ['swap', saved]
+		end
+	end
+
+	return ['add', nil]							# if not found (by file) => add
+end
+
+def check_if_any_better_by_pilot(all_results, result)
+	# return: [action, poor_result]
+	pilot = result[2].strip.downcase
+
+	all_results.select do |saved|
+		saved_pilot = saved[2].strip.downcase
+		if pilot == saved_pilot
+			puts "Found by pilot, check by file before ..."
+			(action, poor_result_by_file) = check_if_any_better_by_file([saved], result)
+			if action == 'swap'
+				return ['swap', saved]
+			elsif action == 'add'	# merge
+				return ['merge', saved]
+			elsif action == 'skip'
+				return ['skip', saved]
+			end
+		end
+	end
+
+	p "no row with such pilot yet, adding"
+	return ['add', result]
+end

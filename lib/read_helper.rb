@@ -46,5 +46,8 @@ def decorate_result(result, header, pilot=nil)
 		header[2] = pilot
 		log_line 'Pilot name will be: ' + pilot
 	end
+	if header[2].strip.empty?
+		log_error "Warning: Results have empty pilot name. (row header: \"#{header.join(',')}\")"
+	end
 	header + [result.count] + result.map{|hit_wp| hit_wp[:name]}
 end

@@ -9,7 +9,7 @@ SCRIPT DESCRIPTION:
 This script `hits.rb` analyses .igc track file(s), 
 and calculates through which cylinders pilot have flown.
 Cylinders are defined by waypoints.kml file and with max_distance variable. 
-The results are saved in .cvs file, where each line have:
+The results are saved in .csv file, where each line have:
   - Filename
   - Date
   - Pilot name
@@ -25,7 +25,7 @@ Define input:
 	-p pilot_name, to be pritned in results instead of the one in .igc file(s)
 Define output:
 	-o filename, by default ./results.csv
-	-a filename, append to already existing results file, by default ./results.csv
+	-a filename, append to already existing results file (by pilot)
 Other:
 	-h print help
 	-s silent mode on, dont print logs and errors here, but into log files:
@@ -62,6 +62,5 @@ begin
 	end
 
 	end_program
-	# TODO: end_program => save logs and errors to file
 end
 

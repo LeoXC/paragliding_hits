@@ -25,6 +25,7 @@ def exit_script error=nil, help=false
 end
 
 def end_program
+	log_line "DONE!"
 	# Is silence_mode: Save logs and errors to file
 	# TBD
 end
@@ -44,7 +45,11 @@ end
 def read_input_params(argv, params)
 	until argv.empty?
 		arg = argv[0]
-		value = (argv[1]).strip unless ['-s','-h'].include?(arg)
+		if ['-f','-d','-w','-r','-p','-o','-a'].include?(arg)
+			exit_script("Error: Missing value for switch '#{arg}'") if !argv[1] || argv[1] =~ /^-.$/ 
+			value = (argv[1]).strip
+		end
+
 		if arg == '-f'
 			exit_script("Error: '#{value}' is not .igc file") unless value =~ %r(.igc$)i
 			params[:igc_file] = value
@@ -90,26 +95,141 @@ def igc_files_to_read(igc_file, igc_dir)
 	igc_files
 end
 
-def save_in_file(filename, results)
+def save_in_file(filename, results, append=false, squash=true)
 	begin
-		log_line "Saving results in: '#{filename}'"
-		if File.file?(filename)
+		log_line "----- Saving results in: '#{filename}'"
+		if File.file?(filename) && !append
 			log_line "File '#{filename}' already exists, it will be replaced."
 		end
-		f = File.open(filename, "w")
 
+		if squash
+			log_line "New results count: #{results.count}"
+			all_results = sqauash_results(results)
+			log_line "After squash results count: #{all_results.count}"
+		end
+
+		f = File.open(filename, "w")
 		results.each do |result|
-			cvs_line = result.map{ |v| v }.join(',')
-			f.puts cvs_line
+			csv_line = result.join(',')
+			f.puts csv_line
 		end
 	rescue => e
-		errors << "Error: File write problem (filename: #{filename}; #{e.message}"
+		log_error "Error: File write problem (filename: #{filename}; #{e.message})"
 	ensure
   	f.close if f
 	end
 end
 
 def append_to_file(filename, results)
-	# TBD
+	begin
+		unless File.file?(filename)
+			save_in_file(filename, results)
+		else
+			log_line "----- Reading previous results from: '#{filename}'"
+			
+			previous_results = []
+			File.readlines(filename).each do |line|
+				previous_results << line.strip.split(',')
+			end
+
+			log_line "Previous results count: #{previous_results.count}"
+			log_line "New results count: #{results.count}"
+			all_results = sqauash_results(previous_results.concat(results))
+			log_line "After aquash results count: #{all_results.count}"
+
+			save_in_file(filename, all_results, append: true, squash: false)
+		end
+	rescue => e
+		log_error "Error: #{e.message}"
+	end
 end
 
+def sqauash_results results
+	all_results = []
+	results.each do |result|
+		file_s = result[0].strip.downcase
+		pilot = result[2].strip.downcase
+
+		if pilot.empty?
+			log_error "Warning: Empty pilot name. (row header: \"#{result[0..3].join(',')}\")"
+			(action, poor_result) = check_if_any_better_by_file(all_results, result)
+			if action == 'swap'
+				all_results.delete(poor_result)
+				all_results << result
+			elsif action == 'add'
+				all_results << result
+			end
+			next
+		else
+			(action, saved_result) = check_if_any_better_by_pilot(all_results, result)
+			if action == 'add'
+				all_results << result
+				next
+			elsif action == 'swap'
+				all_results.delete(saved_result)
+				all_results << result
+				next
+			elsif action == 'merge'
+				all_results.delete(saved_result)
+
+				all_hits = (saved_result[4..] + result[4..]).uniq
+
+				all_results << [
+					saved_result[0] + ';' + result[0],	# list files
+					saved_result[1] + ';' + result[1],	# list dates
+					saved_result[2],										# pilot name
+					all_hits.count,											# hits count
+					all_hits														# unique hits
+				].flatten
+			end
+		end
+	end
+
+	all_results
+rescue => e
+	log_error "Error: #{e.message}"
+end
+
+def check_if_any_better_by_file(base_results, result)
+	# return: [action, poor_result]
+	file_s = result[0].strip.downcase
+
+	base_results.each do |saved|
+		saved_file_s = saved[0].strip.downcase
+		if file_s == saved_file_s						# if equal => skip
+			return ['skip', nil]
+		elsif saved_file_s.include?(file_s)	# if saved is better => skip
+			return ['skip', result]
+		elsif file_s.include?(saved_file_s)	# if saved is worse => swap
+			return ['swap', saved]
+		end
+	end
+
+	return ['add', nil]							# if not found (by file) => add
+end
+
+def check_if_any_better_by_pilot(all_results, result)
+	# return: [action, poor_result]
+	pilot = result[2].strip.downcase
+
+	all_results.select do |saved|
+		saved_pilot = saved[2].strip.downcase
+		if pilot == saved_pilot
+			# puts "Found row with same pilot, comparing by files now ..."
+			(action, poor_result_by_file) = check_if_any_better_by_file([saved], result)
+			if action == 'swap'
+				#puts "Saved row is worse, need to swap."
+				return ['swap', saved]
+			elsif action == 'add'	# merge
+				# puts "Saved row is different (new). Need to merge."
+				return ['merge', saved]
+			elsif action == 'skip'
+				# puts "Saved row is better, skip this one."
+				return ['skip', saved]
+			end
+		end
+	end
+
+	#puts "No row with such pilot yet, adding."
+	return ['add', result]
+end

@@ -4,7 +4,7 @@ This script `hits.rb` analyses .igc track file(s) and calculates through which c
 Cylinders are defined by `waypoints.kml` file and with `max_distance` variable. 
 
 ```
-The results are saved in .cvs file, where each line have:
+The results are saved in .csv file, where each line have:
   - Filename
   - Date
   - Pilot name
@@ -20,7 +20,7 @@ Define input:
 
 Define output:
   -o filename, by default ./results.csv
-  -a filename, append to already existing results file, by default ./results.csv
+  -a filename, append to already existing results file (by pilot)
 
 Other:
   -h print help
