@@ -59,3 +59,8 @@ jakis_kolo_na_Zarze.igc,090320,,1,Ruiny_Szalasu_Kamiennego
 2019-12-30-XSD-GPB-01.igc;2019-12-30-XSD-GPB-01_Zar.igc,301219;301219,Marcin Duszynski,0
 2020-01-23-XSD-GPB-01.igc;2020-01-25-XSD-GPB-01.igc;2020-03-17-XSD-GPB-03.igc;2020-03-18-XSD-GPB-01.igc;2020-03-10-XSD-GPB-01.igc;2020-03-05-XSD-GPB-01.igc;2020-03-17-XSD-GPB-02.igc;2020-03-10-XSD-GPB-02.igc;2020-03-17-XSD-GPB-01.igc;2020-01-16-XSD-GPB-02.igc;2020-02-15-XSD-GPB-01.igc;2020-01-25-XSD-GPB-01_Ochodzita.igc,230120;250120;170320;180320;100320;050320;170320;100320;170320;160120;150220;250120,Leonia Zając,6,Bieguny,Plyn_Dezynfekcji,Rybny_Potok,Zimna_Dziura,Matyska,Rysianka
 ```
+
+Used ruby version:
+``` ruby -v
+ruby 2.6.3p62 (2019-04-16 revision 67580) [universal.x86_64-darwin19]
+```
