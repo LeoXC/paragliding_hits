@@ -61,6 +61,23 @@ jakis_kolo_na_Zarze.igc,090320,,1,Ruiny_Szalasu_Kamiennego
 2020-01-23-XSD-GPB-01.igc;2020-01-25-XSD-GPB-01.igc;2020-03-17-XSD-GPB-03.igc;2020-03-18-XSD-GPB-01.igc;2020-03-10-XSD-GPB-01.igc;2020-03-05-XSD-GPB-01.igc;2020-03-17-XSD-GPB-02.igc;2020-03-10-XSD-GPB-02.igc;2020-03-17-XSD-GPB-01.igc;2020-01-16-XSD-GPB-02.igc;2020-02-15-XSD-GPB-01.igc;2020-01-25-XSD-GPB-01_Ochodzita.igc,230120;250120;170320;180320;100320;050320;170320;100320;170320;160120;150220;250120,Leonia Zając,6,Bieguny,Plyn_Dezynfekcji,Rybny_Potok,Zimna_Dziura,Matyska,Rysianka
 ```
 
+4 Sample look of resutls.csv:
+(12 tracks, 2 pilots, no squash/merge)
+`ruby hits.rb -d "../tracks2" -w ../waypoints.kml -r 1000 -o ./results.csv`
+```
+2020-01-23-XSD-GPB-01.igc,23.01.2020,Leonia Zając,0
+2020-01-25-XSD-GPB-01.igc,25.01.2020,Leonia Zając,0
+2020-03-17-XSD-GPB-03.igc,17.03.2020,Leonia Zając,1,Bieguny
+2020-03-18-XSD-GPB-01.igc,18.03.2020,Leonia Zając,1,Plyn_Dezynfekcji
+2020-03-10-XSD-GPB-01.igc,10.03.2020,Leonia Zając,1,Rybny_Potok
+2020-03-05-XSD-GPB-01.igc,05.03.2020,Leonia Zając,1,Zimna_Dziura
+2020-03-17-XSD-GPB-02.igc,17.03.2020,Leonia Zając,0
+2020-03-10-XSD-GPB-02.igc,10.03.2020,Leonia Zając,0
+2020-03-17-XSD-GPB-01.igc,17.03.2020,Leonia Zając,0
+2020-01-16-XSD-GPB-02.igc,16.01.2020,Leonia Zając,1,Matyska
+2020-02-15-XSD-GPB-01.igc,15.02.2020,Leonia Zając,1,Rysianka
+2019-12-30-XSD-GPB-01.igc,30.12.2019,Marcin Duszynski,0
+```
 Used ruby version:
 ``` ruby -v
 ruby 2.6.3p62 (2019-04-16 revision 67580) [universal.x86_64-darwin19]
