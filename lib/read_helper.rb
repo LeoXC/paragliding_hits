@@ -1,3 +1,4 @@
+require 'date'
 
 def read_waypoints_with_info(wp_file)
 	log_line "Reading waypoints file: #{wp_file}"
@@ -36,7 +37,7 @@ end
 def decorate_result(result, header, pilot=nil)
 	# Desired result record:
 	# - Filename
-	# - Date
+	# - Date (format: dd.mm.yyyy)
 	# - Pilot name
 	# - Count of hit waypoints
 	# - Hit waypoints (names)
@@ -47,5 +48,11 @@ def decorate_result(result, header, pilot=nil)
 	if header[2].strip.empty?
 		log_error "Warning: Results have empty pilot name. (row header: \"#{header.join(',')}\")"
 	end
+	begin
+		d = Date.strptime(header[1], '%d%m%y')
+		header[1] = d.strftime("%d.%m.%Y")
+	rescue Exception => e
+		log_error "Error: Could not transform this: #{header[1]} to desired date format. Skipped."
+	end	   
 	header + [result.count] + result.map{|hit_wp| hit_wp[:name]}
 end
