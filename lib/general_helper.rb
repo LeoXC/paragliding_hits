@@ -38,7 +38,8 @@ def default_params()
 	  max_distance: 120,
 	  results_file: 'results.csv',
 	  results_append_file: nil,
-	  pilot: nil
+	  pilot: nil,
+	  squash: false 
 	]
 end
 
@@ -66,6 +67,10 @@ def read_input_params(argv, params)
    		params[:results_file] = value
    	elsif arg == '-a'
    		params[:results_append_file] = value
+   	elsif arg == '-m'
+   		params[:squash] = true
+   		argv.shift
+   		next
    	elsif arg == '-s'
    		@silent_mode = true
    		argv.shift
@@ -96,17 +101,11 @@ def igc_files_to_read(igc_file, igc_dir)
 	igc_files
 end
 
-def save_in_file(filename, results, append=false, squash=true)
+def save_in_file(filename, results, append=false)
 	begin
 		log_line "----- Saving results in: '#{filename}'"
 		if File.file?(filename) && !append
 			log_line "File '#{filename}' already exists, it will be replaced."
-		end
-
-		if squash
-			log_line "New results count: #{results.count}"
-			results = sqauash_results(results)
-			log_line "After squash results count: #{results.count}"
 		end
 
 		f = File.open(filename, "w")
@@ -121,31 +120,28 @@ def save_in_file(filename, results, append=false, squash=true)
 	end
 end
 
-def append_to_file(filename, results)
+def read_results_from_file(filename)
 	begin
-		unless File.file?(filename)
-			save_in_file(filename, results)
-		else
+		previous_results = []
+		if File.file?(filename)
 			log_line "----- Reading previous results from: '#{filename}'"
 			
-			previous_results = []
 			File.readlines(filename).each do |line|
 				previous_results << line.strip.split(',')
 			end
-
-			log_line "Previous results count: #{previous_results.count}"
-			log_line "New results count: #{results.count}"
-			all_results = sqauash_results(previous_results.concat(results))
-			log_line "After aquash results count: #{all_results.count}"
-
-			save_in_file(filename, all_results, append: true, squash: false)
 		end
+		previous_results
 	rescue => e
 		log_error "Error: #{e.message}"
 	end
 end
 
 def sqauash_results results
+	# Note: Merge lines of same pilot.
+	# Separate .igc files and dates with `;`
+	# Skip lines with same filename.
+	# If no pilot name provided, merge to one line.
+	log_line "Current results count: #{results.count}"
 	all_results = []
 	results.each do |result|
 		file_s = result[0].strip.downcase
@@ -185,7 +181,7 @@ def sqauash_results results
 			end
 		end
 	end
-
+	log_line "After squash results count: #{all_results.count}"
 	all_results
 rescue => e
 	log_error "Error: #{e.message}"
@@ -193,6 +189,7 @@ end
 
 def check_if_any_better_by_file(base_results, result)
 	# return: [action, poor_result]
+	# worse/better means have more files incuded in result
 	file_s = result[0].strip.downcase
 
 	base_results.each do |saved|
@@ -211,6 +208,7 @@ end
 
 def check_if_any_better_by_pilot(all_results, result)
 	# return: [action, poor_result]
+	# worse/better means have more files included in result
 	pilot = result[2].strip.downcase
 
 	all_results.select do |saved|

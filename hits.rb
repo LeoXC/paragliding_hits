@@ -20,8 +20,7 @@ Define input:
 	-f filename (.igc)
 	-d directory (with .igc files to read), by default ./tracks/
 	-w filename (waypoints XML .kml), by default ./waypoints.kml
-	-r max_distance allowed for track point from waypoint to be hit,
-	   by default = 120m
+	-r max_distance allowed for track point from waypoint to be hit, by default = 120m
 	-p pilot_name, to be pritned in results instead of the one in .igc file(s)
 Define output:
 	-o filename, by default ./results.csv
@@ -31,6 +30,7 @@ Other:
 	-s silent mode on, dont print logs and errors here, but into log files:
 		./log.txt
 		./errors.txt (if occure)
+	-m merge (squash) similar results into one line (by pilot) in resutls file, by default it is off
 Sample ussage:
  ruby hits.rb -f "track_file.igc"
  ruby hits.rb -w ../waypoints.kml -d ../tracks -r 2000
@@ -55,7 +55,17 @@ begin
 	# Save results
 	unless results.empty?
 		if params[:results_append_file]
-			append_to_file(params[:results_append_file], results)
+			previous_results = read_results_from_file(params[:results_append_file])
+			results = previous_results.concat(results)
+		end
+
+		results = sqauash_results(results) if params[:squash]
+		
+		# TODO: Currently append is: read + clear + write,
+		# due to squash functionality. Migth be needing rewrite, 
+		# if operation takes to long in biger amount of data
+		if params[:results_append_file]
+			save_in_file(params[:results_append_file], results, append: true)
 		else
 			save_in_file(params[:results_file], results)
 		end

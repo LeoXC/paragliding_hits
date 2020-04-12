@@ -26,7 +26,8 @@ Other:
   -h print help
   -s silent mode on, dont print logs and errors here, but into log files:
 		./log.txt
-		./errors.txt (if occure)'
+		./errors.txt (if occure)
+  -m me, by default it is off
 
 Sample ussage:
  ruby hits.rb -f "track_file.igc"
