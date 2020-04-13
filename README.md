@@ -27,7 +27,7 @@ Other:
   -s silent mode on, dont print logs and errors here, but into log files:
 		./log.txt
 		./errors.txt (if occure)
-  -m me, by default it is off
+  -m merge (squash) similar results into one line (by pilot) in resutls file, by default it is off
 
 Sample ussage:
  ruby hits.rb -f "track_file.igc"
@@ -35,35 +35,12 @@ Sample ussage:
  ruby hits.rb -w ../waypoints.kml -f my_trac_file.igc -o my_results.csv -s
 ```
 
-Sample results:
+## Samples:
 
-1. Sample look of results.csv:
-(5 tracks, 4 pilots, 2 tracks without pilot name in .igc)
-```2020-03-15-XCM-LD6-011111026906.IGC,150320,,5,Bialskie,Diabli_Kamien,Zapora_Tresna,Jaworzynka,Ruiny_Szalasu_Kamiennego
-jakis_kolo_na_Zarze.igc,090320,,3,Bialskie,Jaworzynka,Ruiny_Szalasu_Kamiennego
-2019-12-30-XSD-GPB-01.igc;2019-12-30-XSD-GPB-01_Zar.igc,301219;301219,Marcin Duszynski,0
-2020-01-25-XSD-GPB-01_Ochodzita.igc,250120,Leonia Zając,0
-```
-
-2. Sample look of results.csv:
-(squashed 12 tracks, 2 pilots)
-```
-2020-01-23-XSD-GPB-01.igc;2020-01-25-XSD-GPB-01.igc;2020-03-17-XSD-GPB-03.igc;2020-03-18-XSD-GPB-01.igc;2020-03-10-XSD-GPB-01.igc;2020-03-05-XSD-GPB-01.igc;2020-03-17-XSD-GPB-02.igc;2020-03-10-XSD-GPB-02.igc;2020-03-17-XSD-GPB-01.igc;2020-01-16-XSD-GPB-02.igc;2020-02-15-XSD-GPB-01.igc,230120;250120;170320;180320;100320;050320;170320;100320;170320;160120;150220,Leonia Zając,6,Bieguny,Plyn_Dezynfekcji,Rybny_Potok,Zimna_Dziura,Matyska,Rysianka
-2019-12-30-XSD-GPB-01.igc,301219,Marcin Duszynski,0
-```
-
-3. Sample look of appended results.csv:
-(append tracks from Sample1 to results.csv from Sample2)
-```
-2020-03-15-XCM-LD6-011111026906.IGC,150320,,2,Jaworzynka,Ruiny_Szalasu_Kamiennego
-jakis_kolo_na_Zarze.igc,090320,,1,Ruiny_Szalasu_Kamiennego
-2019-12-30-XSD-GPB-01.igc;2019-12-30-XSD-GPB-01_Zar.igc,301219;301219,Marcin Duszynski,0
-2020-01-23-XSD-GPB-01.igc;2020-01-25-XSD-GPB-01.igc;2020-03-17-XSD-GPB-03.igc;2020-03-18-XSD-GPB-01.igc;2020-03-10-XSD-GPB-01.igc;2020-03-05-XSD-GPB-01.igc;2020-03-17-XSD-GPB-02.igc;2020-03-10-XSD-GPB-02.igc;2020-03-17-XSD-GPB-01.igc;2020-01-16-XSD-GPB-02.igc;2020-02-15-XSD-GPB-01.igc;2020-01-25-XSD-GPB-01_Ochodzita.igc,230120;250120;170320;180320;100320;050320;170320;100320;170320;160120;150220;250120,Leonia Zając,6,Bieguny,Plyn_Dezynfekcji,Rybny_Potok,Zimna_Dziura,Matyska,Rysianka
-```
-
-4 Sample look of resutls.csv:
+1. Sample look of resutls.csv:
 (12 tracks, 2 pilots, no squash/merge)
-`ruby hits.rb -d "../tracks2" -w ../waypoints.kml -r 1000 -o ./results.csv`
+
+`ruby hits.rb -d "../tracks" -w ../waypoints.kml -r 1000 -o ./results.csv`
 ```
 2020-01-23-XSD-GPB-01.igc,23.01.2020,Leonia Zając,0
 2020-01-25-XSD-GPB-01.igc,25.01.2020,Leonia Zając,0
@@ -78,7 +55,47 @@ jakis_kolo_na_Zarze.igc,090320,,1,Ruiny_Szalasu_Kamiennego
 2020-02-15-XSD-GPB-01.igc,15.02.2020,Leonia Zając,1,Rysianka
 2019-12-30-XSD-GPB-01.igc,30.12.2019,Marcin Duszynski,0
 ```
-Used ruby version:
+
+2. Sample look of results.csv:
+(12 tracks, 2 pilots, squashed)
+
+`ruby hits.rb -d "../tracks" -w ../waypoints.kml -r 1000 -o ./results.csv -m`
+```
+2020-01-23-XSD-GPB-01.igc;2020-01-25-XSD-GPB-01.igc;2020-03-17-XSD-GPB-03.igc;2020-03-18-XSD-GPB-01.igc;2020-03-10-XSD-GPB-01.igc;2020-03-05-XSD-GPB-01.igc;2020-03-17-XSD-GPB-02.igc;2020-03-10-XSD-GPB-02.igc;2020-03-17-XSD-GPB-01.igc;2020-01-16-XSD-GPB-02.igc;2020-02-15-XSD-GPB-01.igc,23.01.2020;25.01.2020;17.03.2020;18.03.2020;10.03.2020;05.03.2020;17.03.2020;10.03.2020;17.03.2020;16.01.2020;15.02.2020,Leonia Zając,6,Bieguny,Plyn_Dezynfekcji,Rybny_Potok,Zimna_Dziura,Matyska,Rysianka
+2019-12-30-XSD-GPB-01.igc,30.12.2019,Marcin Duszynski,0
+```
+
+3. Sample look of results.csv:
+(1 track, empty pilot's name)
+
+`ruby hits.rb -f ../tracks/2020-03-15-XCM-LD6-011111026906.IGC -w ../waypoints.kml -r 1000 -o ./results.csv`
+```
+2020-03-15-XCM-LD6-011111026906.IGC,15.03.2020,,2,Jaworzynka,Ruiny_Szalasu_Kamiennego
+```
+
+## Used ruby version:
 ``` ruby -v
 ruby 2.6.3p62 (2019-04-16 revision 67580) [universal.x86_64-darwin19]
 ```
+
+## Create .exe file:
+- use OCRA: https://github.com/larsch/ocra
+- works only on Windows
+- install ocra, by i.e. 
+
+`gem install ocra`
+
+- goto your script directory and run: 
+
+`ocra hits.rb --console`
+
+- additional params: 
+
+`--no-dep-run` - dont execute your program, to check exactly what libs it is using
+
+`--console` - it will be console script
+
+`--icon=c:\path-to\icon.ico` - use this icon for .exe ;)
+
+Other docs about OCRA: 
+https://ourcodeworld.com/articles/read/270/how-to-create-an-executable-exe-from-a-ruby-script-in-windows-using-ocra
