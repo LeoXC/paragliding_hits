@@ -91,10 +91,10 @@ ruby 2.6.3p62 (2019-04-16 revision 67580) [universal.x86_64-darwin19]
 
 - additional params: 
 
-`--no-dep-run` - dont execute your program, to check exactly what libs it is using
-
 `--console` - it will be console script
-
+`--no-dep-run` - don't run script.rb to check for dependencies.
+`--no-autoload` - don't load/include script.rb's autoloads.
+`--no-autodll` - disable detection of runtime DLL dependencies.
 `--icon=c:\path-to\icon.ico` - use this icon for .exe ;)
 
 Other docs about OCRA: 
