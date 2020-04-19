@@ -22,7 +22,11 @@ IGC_LINES = [
 def read_points filename
 	points = []
 	errors = []
-	header = [File.basename(filename)]
+	header = [File.basename(filename)] 
+	# Header: 
+	# - Filename
+	# - Date
+	# - Pilot name
 	begin
 		f = File.open(filename)
 		f.each do |line|
@@ -41,15 +45,15 @@ def read_points filename
 					# HFDTE301219
 					# HFDTEDATE:150320,01
 					if line.index(':')
-						header << line[line.index(':')+1,6]
+						header[1] = line[line.index(':')+1,6]
 					else
-						header << line[5,6]
+						header[1] = line[5,6]
 					end
 				elsif line =~ /^H.PLT/
 					# Pilot
 					# HFPLTPILOTINCHARGE:Marcin Duszynski
 					# HFPLTPILOT:
-					header << (line[(line.index(':')+1)..line.length]).strip
+					header[2] = (line[(line.index(':')+1)..line.length]).strip
 				elsif line =~ /^H.GTY/
 					# Glider Type
 				elsif line =~ /^H.GID/
