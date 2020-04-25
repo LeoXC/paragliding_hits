@@ -11,9 +11,9 @@ def distance(lat1, lon1, lat2, lon2)
   RM * c # Delta in meters
 end
 
-def calculate_results points, waypoints, max_distance=120
+def calculate_results points, waypoints, max_distance=420
 	# Choose all points that hit any of the cylinders (waypoint + max_distance)
-	# Default: max_distance = 120 #m
+	# Default: max_distance = 420 #m
 	result = []
 	waypoints.each do |wp|
 		points.each do |pt|

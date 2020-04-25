@@ -20,7 +20,7 @@ Define input:
 	-f filename (.igc)
 	-d directory (with .igc files to read), by default ./tracks/
 	-w filename (waypoints XML .kml), by default ./waypoints.kml
-	-r max_distance allowed for track point from waypoint to be hit, by default = 120m
+	-r max_distance allowed for track point from waypoint to be hit, by default = 420m
 	-p pilot_name, to be pritned in results instead of the one in .igc file(s)
 Define output:
 	-o filename, by default ./results.csv

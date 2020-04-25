@@ -35,7 +35,7 @@ def default_params()
 	  igc_file: nil,
 	  igc_dir: 'tracks',
 	  wp_file: 'waypoints.kml',
-	  max_distance: 120,
+	  max_distance: 420,
 	  results_file: 'results.csv',
 	  results_append_file: nil,
 	  pilot: nil,
