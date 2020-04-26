@@ -39,7 +39,8 @@ def default_params()
 	  results_file: 'results.csv',
 	  results_append_file: nil,
 	  pilot: nil,
-	  squash: false 
+	  squash: false,
+	  split: false 
 	]
 end
 
@@ -71,6 +72,10 @@ def read_input_params(argv, params)
    		params[:squash] = true
    		argv.shift
    		next
+   	elsif arg == '-l'
+   		params[:split] = true
+   		argv.shift
+   		next
    	elsif arg == '-s'
    		@silent_mode = true
    		argv.shift
@@ -82,6 +87,10 @@ def read_input_params(argv, params)
    		exit_script("Error: Unknown argument: #{arg}", help=true)
 		end
    	argv.shift(2)
+	end
+
+	if params[:split] && params[:squash]
+		exit_script("Error: You cannot both split(-l) and squash(-m) results.", help=true)
 	end
 	params
 end
@@ -134,6 +143,21 @@ def read_results_from_file(filename)
 	rescue => e
 		log_error "Error: #{e.message}"
 	end
+end
+
+def split_results results
+	# Split result line to have one hit in one line, so into format:
+	# [filename, date, pilot, hit]
+	# - count of hits = 1
+	log_line "Current results count: #{results.count}"
+	all_results = []
+	results.each do |result|
+		result[4..].each do |hit|
+			all_results << result[0..2] + [1, hit]
+		end
+	end
+	log_line "After split results count: #{all_results.count}"
+	all_results
 end
 
 def sqauash_results results

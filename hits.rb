@@ -31,7 +31,8 @@ Other:
 		./log.txt
 		./errors.txt (if occure)
 	-m merge (squash) similar results into one line (by pilot) in resutls file, by default it is off
-Sample ussage:
+	-l (split) save results in format: one hit in one line (header + one hit), the default is: all hits from current file in one line (header + all hits)
+Sample usage:
  ruby hits.rb -f "track_file.igc"
  ruby hits.rb -w ../waypoints.kml -d ../tracks -r 2000
  ruby hits.rb -w ../waypoints.kml -f my_trac_file.igc -o my_results.csv -s'.freeze
@@ -59,6 +60,7 @@ begin
 			results = previous_results.concat(results)
 		end
 
+		results = split_results(results) if params[:split]
 		results = sqauash_results(results) if params[:squash]
 		
 		# TODO: Currently append is: read + clear + write,

@@ -28,8 +28,10 @@ Other:
 		./log.txt
 		./errors.txt (if occure)
   -m merge (squash) similar results into one line (by pilot) in resutls file, by default it is off
+  -l (split) save reasults in format: one hit in one line (header + one hit), the default is: all hits from current file in one line (header + all hits)
 
-Sample ussage:
+
+Sample usage:
  ruby hits.rb -f "track_file.igc"
  ruby hits.rb -w ../waypoints.kml -d ../tracks -r 2000
  ruby hits.rb -w ../waypoints.kml -f my_trac_file.igc -o my_results.csv -s
