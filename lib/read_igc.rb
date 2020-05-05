@@ -86,13 +86,13 @@ def read_points filename
 				# Important! I don't check S,N,E,W !!! it will work only for Poland! ;)
 				latitude_str = line[7,7]
 				longitude_str = line[15,8]
-				(latitude_dd, longitude_dd) = encode_dms_to_dd(latitude_str, longitude_str)
+				(latitude_dd, longitude_dd) = encode_ddm_to_dd(latitude_str, longitude_str)
 
 				points << Hash[
 					time: line[1,6],
-					# latitude_str: line[7,8],	# N
+					latitude_str: line[7,8],	# N
 					latitude: latitude_dd,
-					# longitude_str: line[15,9],# E
+					longitude_str: line[15,9],# E
 					longitude: longitude_dd,
 					valid: line[24], 					# A=ok
 					pressure_alt: line[25,5],
@@ -124,22 +124,28 @@ def read_points filename
 	[header, points, errors]
 end
 
-def encode_dms_to_dd latitude_str, longitude_str
-	# Degrees, minutes, and seconds (DMS): 41°24'12.2"N 2°10'26.5"E.
-	# Decimal degrees (DD): 41.40338, 2.17403
+def encode_ddm_to_dd latitude_str, longitude_str
+	# From .igc: 4948948N 01910747E
+	# GPS/Degrees and decimal minutes (DMM/DDM): N 49 48.948 E 19 10.747
+	# Degrees, minutes, and seconds (DMS): N49 48 56, E19 10 44
+	# 														or DMS: 41°24'12.2"N 2°10'26.5"E.
+	# Decimal degrees (DD): 49.8158, 19.179117
+	#
+	# Convert DMS to DD:
 	# decimal_degrees = degrees + minutes / 60 + seconds / 3600
+	#
+	# Convert DMM/DDM to DD:
+	# decimal_degrees = degrees + decimal_minutes / 60
 
 	# Latitude_str: 4932731N
 	degrees = latitude_str[0,2].to_f
-	minutes = latitude_str[2,2].to_f
-	seconds = (latitude_str[4,2] + '.' + latitude_str[6,1]).to_f
-	latitude_dd = (degrees + (minutes/60) + (seconds/3600)).round(8)
+	decimal_minutes = (latitude_str[2,2] + '.' + latitude_str[4,3]).to_f
+	latitude_dd = (degrees + (decimal_minutes/60)).round(8)
 	
 	# Latitude_str: 01913428E
 	degrees = longitude_str[0,3].to_f
-	minutes = longitude_str[3,2].to_f
-	seconds = (longitude_str[5,2] + '.' + longitude_str[7,1]).to_f
-	longitude_dd = (degrees + (minutes/60) + (seconds/3600)).round(8)
+	decimal_minutes = (longitude_str[3,2] + '.' + longitude_str[5,3]).to_f
+	longitude_dd = (degrees + (decimal_minutes/60)).round(8)
 	
 	[latitude_dd, longitude_dd]
 rescue => e

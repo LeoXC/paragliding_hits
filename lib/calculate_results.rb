@@ -19,11 +19,11 @@ def calculate_results points, waypoints, max_distance=420
 		points.each do |pt|
 			ds = distance(wp[:latitude], wp[:longitude], pt[:latitude], pt[:longitude])
 			if ds <= max_distance
-				#puts "Hit: #{ds.round(0)}"
 				unless result.include?(wp)
-					#puts "First added hit: #{ds.round(0)}"
-					# I dont add it, as it is not the closest one, just first found.
-					# wp[:distance] = ds.round(0)
+					# log_line "First added hit: #{ds.round(0)}"
+					wp[:distance] = ds.round(0)
+					wp[:pt_lon] = pt[:longitude]
+					wp[:pt_lat] = pt[:latitude]
 					result << wp
 				end
 			end

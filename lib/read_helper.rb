@@ -30,7 +30,9 @@ def calculate_results_with_info(points, waypoints, max_distance)
 
 	log_line "RESULT: You hit: #{result.count} Beskid Bobble(s)"
 	result.each do |hit|
-		log_line "-> #{hit[:name]}" #, distance: #{hit[:distance]}m"
+		log_line "-> #{hit[:name]}"
+		log_line "   First found point: distance: #{hit[:distance]}m, pt_lon: #{hit[:pt_lon]}, pt_lat: #{hit[:pt_lat]}"
+		log_line "   Waypoint: wp_lon: #{hit[:longitude]}, wp_lat: #{hit[:latitude]}"
 	end
 end
 
